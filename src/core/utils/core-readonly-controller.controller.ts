@@ -1,10 +1,6 @@
-import { Post, Body, Get, Param, Patch, Delete, Query } from '@nestjs/common';
+import { Get, Param, Query } from '@nestjs/common';
 import { ErrorHandler } from '../handlers/error.handler';
 import { createPaginationConfig } from '../handlers/pagination.handler';
-
-interface HasId {
-  id: number;
-}
 
 interface IsService {
   create(createDto: any): Promise<any>;

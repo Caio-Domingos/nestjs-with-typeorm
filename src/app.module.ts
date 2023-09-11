@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './routes/auth/auth.module';
 import { UserModule } from './routes/user/user.module';
 import createOrmConfig from './core/database/ormconfig';
+import { TerminusModule } from '@nestjs/terminus';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import createOrmConfig from './core/database/ormconfig';
       },
       inject: [ConfigService],
     }),
+    TerminusModule,
+    HttpModule,
     AuthModule,
     UserModule,
   ],

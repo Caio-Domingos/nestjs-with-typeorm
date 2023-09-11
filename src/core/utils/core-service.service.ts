@@ -2,9 +2,26 @@ import { Repository } from 'typeorm';
 import { translateTypeORMError } from '../functions/typeorm.utils';
 import { ErrorHandler } from '../handlers/error.handler';
 
-export class CoreService<T> {
-  constructor(public repository: Repository<T>, private idProp?: string) {
-    this.idProp = idProp || 'id';
+interface Entity {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  deleted?: boolean;
+}
+export class CoreService<T extends Entity> {
+  idProp: string;
+  haveDeletedColumn: boolean;
+
+  constructor(
+    public repository: Repository<T>,
+    private entityConfigurations?: {
+      idProp: string;
+      haveDeletedColumn: boolean;
+    },
+  ) {
+    this.idProp = entityConfigurations.idProp || 'id';
+    this.haveDeletedColumn = entityConfigurations.haveDeletedColumn || false;
   }
 
   createWhere(query: any) {
@@ -45,7 +62,7 @@ export class CoreService<T> {
   async findByFilter(query: any) {
     console.log(query);
     const where = this.createWhere(query);
-
+    where['deleted'] = false;
     try {
       const results = await this.repository.findAndCount({
         where,
@@ -69,8 +86,11 @@ export class CoreService<T> {
   async findAll(relations?: string[]) {
     try {
       // Create a new item
+      const where = {};
+      where['deleted'] = false;
       const rel = relations ? relations : [];
       return await this.repository.find({
+        where,
         relations: rel,
       });
     } catch (error) {
@@ -82,6 +102,7 @@ export class CoreService<T> {
     try {
       const whereId: any = {};
       whereId[this.idProp] = id;
+      whereId['deleted'] = false;
       const rel = relations ? relations : [];
       const item = await this.repository.findOne({
         where: whereId,
@@ -99,6 +120,8 @@ export class CoreService<T> {
       // Check if item exists
       const whereId: any = {};
       whereId[this.idProp] = id;
+      whereId['deleted'] = false;
+
       const item = await this.repository.findOne({
         where: whereId,
       });
@@ -140,6 +163,8 @@ export class CoreService<T> {
       // Check if item exists
       const whereId: any = {};
       whereId[this.idProp] = id;
+      whereId['deleted'] = false;
+
       const item = await this.repository.findOne({
         where: whereId,
       });
@@ -147,9 +172,9 @@ export class CoreService<T> {
       if (!item) {
         throw new ErrorHandler('Item não encontrado', 404, 404);
       }
-
+      const data: any = { ...item, deleted: true, deletedAt: new Date() };
       // Delete item
-      await this.repository.delete(id);
+      await this.update(data.id, data.data);
       return item;
     } catch (error) {
       throw translateTypeORMError(error);

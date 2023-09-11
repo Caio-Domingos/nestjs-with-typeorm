@@ -1,5 +1,6 @@
 import {
   BaseEntity,
+  Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -14,4 +15,15 @@ export class CoreEntity extends BaseEntity {
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: null,
+    name: 'deleted_at',
+    nullable: true,
+  })
+  deletedAt: Date;
+
+  @Column({ type: 'boolean', default: false })
+  deleted: boolean;
 }
