@@ -17,40 +17,13 @@ interface IsService {
   remove(id: number): Promise<any>;
 }
 
-export class CoreController<
+export class CoreReadonlyController<
   Entity,
   Service extends IsService,
   CreateDTO,
   UpdateDTO,
 > {
   constructor(public service: Service) {}
-
-  @Post('/single')
-  async create(@Body() createDto: CreateDTO) {
-    try {
-      const create$: Entity = await this.service.create(createDto);
-      return create$;
-    } catch (error) {
-      throw new ErrorHandler(
-        error.message,
-        error.response?.errorCode || 400,
-        error.response?.statusCode || 400,
-      );
-    }
-  }
-  @Post('/many')
-  async createMany(@Body() createDto: CreateDTO[]) {
-    try {
-      const create$: Entity = await this.service.createMany(createDto);
-      return create$;
-    } catch (error) {
-      throw new ErrorHandler(
-        error.message,
-        error.response?.errorCode || 400,
-        error.response?.statusCode || 400,
-      );
-    }
-  }
 
   @Get()
   async findAll(@Query() query: any): Promise<Entity[]> {
@@ -85,47 +58,6 @@ export class CoreController<
         throw new ErrorHandler('Item não encontrado', 404, 404);
       }
       return item;
-    } catch (error) {
-      throw new ErrorHandler(
-        error.message,
-        error.response?.errorCode || 400,
-        error.response?.statusCode || 400,
-      );
-    }
-  }
-
-  @Patch('single/:id')
-  async update(@Param('id') id: string, @Body() updateDto: UpdateDTO) {
-    try {
-      const update$: Entity = await this.service.update(+id, updateDto);
-      return update$;
-    } catch (error) {
-      throw new ErrorHandler(
-        error.message,
-        error.response?.errorCode || 400,
-        error.response?.statusCode || 400,
-      );
-    }
-  }
-  @Patch('many')
-  async updateMany(@Body() updateDto: { id: number; data: UpdateDTO }[]) {
-    try {
-      const update$: Entity = await this.service.updateMany(updateDto);
-      return update$;
-    } catch (error) {
-      throw new ErrorHandler(
-        error.message,
-        error.response?.errorCode || 400,
-        error.response?.statusCode || 400,
-      );
-    }
-  }
-
-  @Delete('single/:id')
-  async remove(@Param('id') id: string) {
-    try {
-      const remove$: Entity = await this.service.remove(+id);
-      return remove$;
     } catch (error) {
       throw new ErrorHandler(
         error.message,

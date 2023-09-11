@@ -1,9 +1,11 @@
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { translateTypeORMError } from '../functions/typeorm.utils';
 import { ErrorHandler } from '../handlers/error.handler';
 
 export class CoreService<T> {
-  constructor(public repository: Repository<T>) {}
+  constructor(public repository: Repository<T>, private idProp?: string) {
+    this.idProp = idProp || 'id';
+  }
 
   createWhere(query: any) {
     const where = {};
@@ -13,13 +15,13 @@ export class CoreService<T> {
     return where;
   }
 
-  async create(createDto: any): Promise<T> {
+  async create(createDto: any) {
     try {
       // Create a new item
       const newItem = this.repository.create(createDto);
 
       // Save item in database
-      const create$: any = await this.repository.save(newItem);
+      const create$ = await this.repository.save(newItem);
       return create$;
     } catch (error) {
       throw translateTypeORMError(error);
@@ -28,17 +30,11 @@ export class CoreService<T> {
 
   async createMany(items: any[]) {
     try {
-      const res = [];
-      for (const item of items) {
-        const r = await this.create(item);
-        res.push(r);
-      }
-
-      // items.map(async (item) => {
-      //   return this.create(item);
-      // });
-
-      // const res = await Promise.all(items);
+      items.map(async (item) => {
+        return this.create(item);
+      });
+      const res = await Promise.all(items);
+      console.log(res);
       return res;
     } catch (error) {
       console.log(error);
@@ -47,7 +43,9 @@ export class CoreService<T> {
   }
 
   async findByFilter(query: any) {
+    console.log(query);
     const where = this.createWhere(query);
+
     try {
       const results = await this.repository.findAndCount({
         where,
@@ -82,7 +80,8 @@ export class CoreService<T> {
 
   async findOne(id: number, relations?: string[]) {
     try {
-      const whereId: any = { id };
+      const whereId: any = {};
+      whereId[this.idProp] = id;
       const rel = relations ? relations : [];
       const item = await this.repository.findOne({
         where: whereId,
@@ -98,9 +97,8 @@ export class CoreService<T> {
   async update(id: number, updateDto: any) {
     try {
       // Check if item exists
-      console.log('updateDto', updateDto);
-
-      const whereId: any = { id };
+      const whereId: any = {};
+      whereId[this.idProp] = id;
       const item = await this.repository.findOne({
         where: whereId,
       });
@@ -110,8 +108,10 @@ export class CoreService<T> {
       }
 
       // Create a new item
+      console.log(updateDto);
       const dto = { id, ...updateDto };
       const newItem: any = this.repository.create(dto);
+      console.log(newItem);
       // Save item in database
       await this.repository.update(id, newItem);
 
@@ -124,6 +124,7 @@ export class CoreService<T> {
 
   async updateMany(items: { id: number; data: any }[]) {
     try {
+      console.log('updateMany', items);
       items.map(async (item) => {
         return this.update(item.id, item.data);
       });
@@ -137,7 +138,8 @@ export class CoreService<T> {
   async remove(id: number) {
     try {
       // Check if item exists
-      const whereId: any = { id };
+      const whereId: any = {};
+      whereId[this.idProp] = id;
       const item = await this.repository.findOne({
         where: whereId,
       });

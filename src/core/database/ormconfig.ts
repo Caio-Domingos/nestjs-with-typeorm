@@ -9,6 +9,7 @@ function createOrmConfig(connData: {
   username: string;
   password: string;
   database: string;
+  instance?: string;
   synchronize: string;
 }): TypeOrmModuleOptions {
   return {

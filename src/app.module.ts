@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './routes/auth/auth.module';
+import { UserModule } from './routes/user/user.module';
 import createOrmConfig from './core/database/ormconfig';
 
 @Module({
@@ -32,6 +34,8 @@ import createOrmConfig from './core/database/ormconfig';
       },
       inject: [ConfigService],
     }),
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
