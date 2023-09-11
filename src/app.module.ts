@@ -12,8 +12,8 @@ import createOrmConfig from './core/database/ormconfig';
       envFilePath:
         process.env.NODE_ENV === 'production'
           ? '.env.production'
-          : process.env.NODE_ENV === 'internal-docker'
-          ? '.env.internal-docker'
+          : process.env.NODE_ENV === 'container'
+          ? '.env.container'
           : '.env.development',
     }),
     TypeOrmModule.forRootAsync({
@@ -21,12 +21,12 @@ import createOrmConfig from './core/database/ormconfig';
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       useFactory: (configService: ConfigService) => {
         const ormconfig = createOrmConfig({
-          host: configService.get('POSTGRES_HOST'),
-          port: configService.get('POSTGRES_PORT'),
-          username: configService.get('POSTGRES_USER'),
-          password: configService.get('POSTGRES_PASSWORD'),
-          database: configService.get('POSTGRES_DB'),
-          synchronize: configService.get('TYPEORM_SYNC'),
+          host: configService.get('DB_HOST'),
+          port: configService.get('DB_PORT'),
+          username: configService.get('DB_USER'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DB'),
+          synchronize: configService.get('DB_SYNC'),
         });
         return ormconfig;
       },
