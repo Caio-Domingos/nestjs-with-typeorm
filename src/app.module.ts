@@ -8,6 +8,9 @@ import { UserModule } from './routes/user/user.module';
 import createOrmConfig from './core/database/typeorm/ormconfig';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
+import { MongooseModule } from '@nestjs/mongoose';
+import { createMongooseConfig } from './core/database/mongoose/mongooseconfig';
+import { MongoModelModule } from './routes/mongo-model/mongo-model.module';
 
 @Module({
   imports: [
@@ -36,10 +39,33 @@ import { HttpModule } from '@nestjs/axios';
       },
       inject: [ConfigService],
     }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule], // importe o ConfigModule
+      useFactory: async (configService: ConfigService) => {
+        const uri = createMongooseConfig({
+          schema: configService.get<string>('MONGODB_SCHEME'),
+          username: configService.get<string>('MONGODB_USERNAME'),
+          password: configService.get<string>('MONGODB_PASSWORD'),
+          cluster: configService.get<string>('MONGODB_CLUSTER'),
+          database: configService.get<string>('MONGODB_DATABASE'),
+          options: configService.get<string>('MONGODB_OPTIONS'),
+        });
+
+        // console.log(uri);
+
+        return {
+          uri,
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        };
+      },
+      inject: [ConfigService], // injete o ConfigService
+    }),
     TerminusModule,
     HttpModule,
     AuthModule,
     UserModule,
+    MongoModelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

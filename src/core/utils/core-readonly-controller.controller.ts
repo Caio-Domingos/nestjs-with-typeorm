@@ -9,7 +9,7 @@ interface IsService {
   findByFilter(query: any): Promise<any>;
   findOne(id: number, relations?: string[]): Promise<any>;
   update(id: number, updateDto: any): Promise<any>;
-  updateMany(items: { id: number; data: any }[]): Promise<any>;
+  updateMany(items: { id: any; data: any }[]): Promise<any>;
   remove(id: number): Promise<any>;
 }
 
