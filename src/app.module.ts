@@ -5,7 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './routes/auth/auth.module';
 import { UserModule } from './routes/user/user.module';
-import createOrmConfig from './core/database/ormconfig';
+import createOrmConfig from './core/database/typeorm/ormconfig';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 
